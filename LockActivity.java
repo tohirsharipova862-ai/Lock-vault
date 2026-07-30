@@ -50,6 +50,18 @@ public class LockActivity extends Activity {
     private static final String KEY_UNLOCK_TIME =
             "temporarily_unlocked_time";
 
+    private static final String KEY_FAILED_PIN_ATTEMPTS =
+            "failed_pin_attempts";
+
+    private static final String KEY_PIN_LOCKOUT_UNTIL =
+            "pin_lockout_until";
+
+    private static final int MAX_FAILED_PIN_ATTEMPTS =
+            5;
+
+    private static final long PIN_LOCKOUT_DURATION =
+            30000L;
+
     // =========================================================
     // COLORS
     // =========================================================
@@ -543,6 +555,18 @@ public class LockActivity extends Activity {
                                                 .KEYBOARD_TAP
                                 );
 
+                                long lockoutRemaining =
+                                        getLockoutRemainingMillis();
+
+                                if (lockoutRemaining > 0) {
+
+                                    showLockoutMessage(
+                                            lockoutRemaining
+                                    );
+
+                                    return;
+                                }
+
                                 String pressed =
                                         ((TextView) v)
                                                 .getText()
@@ -602,6 +626,8 @@ public class LockActivity extends Activity {
                                             pin
                                     )) {
 
+                                        resetFailedPinAttempts();
+
                                         /*
                                          * ВАЖНО:
                                          *
@@ -617,11 +643,7 @@ public class LockActivity extends Activity {
 
                                     } else {
 
-                                        Toast.makeText(
-                                                this,
-                                                "Incorrect PIN",
-                                                Toast.LENGTH_SHORT
-                                        ).show();
+                                        recordFailedPinAttempt();
 
                                         entered.setLength(
                                                 0
@@ -693,6 +715,147 @@ public class LockActivity extends Activity {
         setContentView(
                 root
         );
+    }
+
+    // =========================================================
+    // PIN ATTEMPT LIMIT
+    // =========================================================
+
+    private long getLockoutRemainingMillis() {
+
+        SharedPreferences preferences =
+                getSharedPreferences(
+                        PREFS_NAME,
+                        MODE_PRIVATE
+                );
+
+        long lockoutUntil =
+                preferences.getLong(
+                        KEY_PIN_LOCKOUT_UNTIL,
+                        0L
+                );
+
+        long remaining =
+                lockoutUntil
+                        -
+                        SystemClock.elapsedRealtime();
+
+        if (remaining <= 0) {
+
+            preferences
+                    .edit()
+                    .remove(
+                            KEY_PIN_LOCKOUT_UNTIL
+                    )
+                    .apply();
+
+            return 0L;
+        }
+
+        return remaining;
+    }
+
+    private void recordFailedPinAttempt() {
+
+        SharedPreferences preferences =
+                getSharedPreferences(
+                        PREFS_NAME,
+                        MODE_PRIVATE
+                );
+
+        int attempts =
+                preferences.getInt(
+                        KEY_FAILED_PIN_ATTEMPTS,
+                        0
+                )
+                        +
+                        1;
+
+        SharedPreferences.Editor editor =
+                preferences.edit();
+
+        if (attempts >= MAX_FAILED_PIN_ATTEMPTS) {
+
+            long lockoutUntil =
+                    SystemClock.elapsedRealtime()
+                            +
+                            PIN_LOCKOUT_DURATION;
+
+            editor.putInt(
+                    KEY_FAILED_PIN_ATTEMPTS,
+                    0
+            );
+
+            editor.putLong(
+                    KEY_PIN_LOCKOUT_UNTIL,
+                    lockoutUntil
+            );
+
+            editor.apply();
+
+            showLockoutMessage(
+                    PIN_LOCKOUT_DURATION
+            );
+
+            return;
+        }
+
+        editor.putInt(
+                KEY_FAILED_PIN_ATTEMPTS,
+                attempts
+        );
+
+        editor.apply();
+
+        Toast.makeText(
+                this,
+                "Incorrect PIN. "
+                        +
+                        (MAX_FAILED_PIN_ATTEMPTS - attempts)
+                        +
+                        " attempts left.",
+                Toast.LENGTH_SHORT
+        ).show();
+    }
+
+    private void resetFailedPinAttempts() {
+
+        SharedPreferences preferences =
+                getSharedPreferences(
+                        PREFS_NAME,
+                        MODE_PRIVATE
+                );
+
+        preferences
+                .edit()
+                .remove(
+                        KEY_FAILED_PIN_ATTEMPTS
+                )
+                .remove(
+                        KEY_PIN_LOCKOUT_UNTIL
+                )
+                .apply();
+    }
+
+    private void showLockoutMessage(
+            long remainingMillis
+    ) {
+
+        long remainingSeconds =
+                Math.max(
+                        1L,
+                        (remainingMillis + 999L) / 1000L
+                );
+
+        Toast.makeText(
+                this,
+                "Too many incorrect PIN attempts. Try again in "
+                        +
+                        remainingSeconds
+                        +
+                        " seconds.",
+                Toast.LENGTH_SHORT
+        ).show();
     }
 
     // =========================================================
