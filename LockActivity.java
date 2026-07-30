@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -215,7 +218,9 @@ public class LockActivity extends Activity {
                 dp(25)
         );
 
-        root.setBackgroundColor(BG);
+        root.setBackground(
+                new AmbientBackgroundDrawable()
+        );
 
         // =====================================================
         // TOP SPACE
@@ -239,8 +244,8 @@ public class LockActivity extends Activity {
 
         TextView icon =
                 text(
-                        "◆",
-                        28,
+                        "◇",
+                        30,
                         PURPLE_LIGHT,
                         medium
                 );
@@ -286,8 +291,8 @@ public class LockActivity extends Activity {
         root.addView(
                 icon,
                 params(
-                        dp(88),
-                        dp(88)
+                        dp(92),
+                        dp(92)
                 )
         );
 
@@ -954,9 +959,9 @@ private void unlockCurrentPackage() {
         bg.setStroke(
                 dp(1),
                 Color.rgb(
-                        49,
-                        46,
-                        62
+                        59,
+                        52,
+                        76
                 )
         );
 
@@ -1030,6 +1035,97 @@ private void unlockCurrentPackage() {
                             i < count
                     )
             );
+        }
+    }
+
+
+    // =========================================================
+    // AMBIENT BACKGROUND
+    // =========================================================
+
+    private class AmbientBackgroundDrawable
+            extends Drawable {
+
+        private final Paint paint =
+                new Paint(
+                        Paint.ANTI_ALIAS_FLAG
+                );
+
+        @Override
+        public void draw(
+                Canvas canvas
+        ) {
+
+            if (canvas == null) {
+                return;
+            }
+
+            int width =
+                    getBounds().width();
+
+            int height =
+                    getBounds().height();
+
+            paint.setStyle(
+                    Paint.Style.FILL
+            );
+
+            paint.setColor(
+                    BG
+            );
+
+            canvas.drawRect(
+                    getBounds(),
+                    paint
+            );
+
+            paint.setColor(
+                    Color.argb(70, 126, 79, 218)
+            );
+
+            canvas.drawCircle(
+                    width * 0.16f,
+                    height * 0.16f,
+                    Math.max(width, height) * 0.30f,
+                    paint
+            );
+
+            paint.setColor(
+                    Color.argb(42, 201, 177, 255)
+            );
+
+            canvas.drawCircle(
+                    width * 0.90f,
+                    height * 0.78f,
+                    Math.max(width, height) * 0.24f,
+                    paint
+            );
+        }
+
+        @Override
+        public void setAlpha(
+                int alpha
+        ) {
+
+            paint.setAlpha(
+                    alpha
+            );
+        }
+
+        @Override
+        public void setColorFilter(
+                android.graphics.ColorFilter colorFilter
+        ) {
+
+            paint.setColorFilter(
+                    colorFilter
+            );
+        }
+
+        @Override
+        public int getOpacity() {
+
+            return android.graphics.PixelFormat.OPAQUE;
         }
     }
 

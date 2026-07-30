@@ -326,8 +326,8 @@ public class MainActivity extends Activity {
         root =
                 vertical();
 
-        root.setBackgroundColor(
-                BG
+        root.setBackground(
+                new AmbientBackgroundDrawable()
         );
 
         ScrollView scroll =
@@ -1013,12 +1013,7 @@ public class MainActivity extends Activity {
         );
 
         box.setBackground(
-                solid(
-                        Color.rgb(
-                                30,
-                                27,
-                                39
-                        ),
+                glassCardBackground(
                         dp(16)
                 )
         );
@@ -3325,6 +3320,115 @@ public class MainActivity extends Activity {
     // BACKGROUNDS
     // =========================================================
 
+
+    private class AmbientBackgroundDrawable
+            extends Drawable {
+
+        private final Paint paint =
+                new Paint(
+                        Paint.ANTI_ALIAS_FLAG
+                );
+
+        @Override
+        public void draw(
+                Canvas canvas
+        ) {
+
+            if (canvas == null) {
+                return;
+            }
+
+            int width =
+                    getBounds().width();
+
+            int height =
+                    getBounds().height();
+
+            paint.setStyle(
+                    Paint.Style.FILL
+            );
+
+            paint.setColor(
+                    BG
+            );
+
+            canvas.drawRect(
+                    getBounds(),
+                    paint
+            );
+
+            drawGlow(
+                    canvas,
+                    width * 0.12f,
+                    height * 0.05f,
+                    Math.max(width, height) * 0.28f,
+                    Color.argb(82, 130, 82, 220)
+            );
+
+            drawGlow(
+                    canvas,
+                    width * 0.94f,
+                    height * 0.27f,
+                    Math.max(width, height) * 0.22f,
+                    Color.argb(54, 93, 218, 155)
+            );
+
+            drawGlow(
+                    canvas,
+                    width * 0.50f,
+                    height * 1.03f,
+                    Math.max(width, height) * 0.24f,
+                    Color.argb(46, 201, 174, 255)
+            );
+        }
+
+        private void drawGlow(
+                Canvas canvas,
+                float cx,
+                float cy,
+                float radius,
+                int color
+        ) {
+
+            paint.setColor(
+                    color
+            );
+
+            canvas.drawCircle(
+                    cx,
+                    cy,
+                    radius,
+                    paint
+            );
+        }
+
+        @Override
+        public void setAlpha(
+                int alpha
+        ) {
+
+            paint.setAlpha(
+                    alpha
+            );
+        }
+
+        @Override
+        public void setColorFilter(
+                android.graphics.ColorFilter colorFilter
+        ) {
+
+            paint.setColorFilter(
+                    colorFilter
+            );
+        }
+
+        @Override
+        public int getOpacity() {
+
+            return android.graphics.PixelFormat.OPAQUE;
+        }
+    }
+
     private Drawable glassCardBackground(
             float radius
     ) {
@@ -4382,7 +4486,9 @@ private void showSecurityCenterScreen() {
     performSecurityCheck();
 
     root = vertical();
-    root.setBackgroundColor(BG);
+    root.setBackground(
+            new AmbientBackgroundDrawable()
+    );
 
     ScrollView scroll =
             new ScrollView(this);
@@ -4860,7 +4966,9 @@ private void showAppLock() {
     loadLockedApps();
 
     root = vertical();
-    root.setBackgroundColor(BG);
+    root.setBackground(
+            new AmbientBackgroundDrawable()
+    );
 
     ScrollView scroll =
             new ScrollView(this);
@@ -6198,7 +6306,9 @@ private void showVaultScreen() {
     syncVaultCounters();
 
     root = vertical();
-    root.setBackgroundColor(BG);
+    root.setBackground(
+            new AmbientBackgroundDrawable()
+    );
 
     ScrollView scroll =
             new ScrollView(this);
@@ -6490,7 +6600,7 @@ private View createVaultCollectionCard(
     );
 
     card.setBackground(
-            softCardBackground(
+            glassCardBackground(
                     dp(20)
             )
     );
@@ -7096,7 +7206,9 @@ private void showSettingsScreen() {
     currentTab = TAB_SETTINGS;
 
     root = vertical();
-    root.setBackgroundColor(BG);
+    root.setBackground(
+            new AmbientBackgroundDrawable()
+    );
 
     ScrollView scroll =
             new ScrollView(this);
@@ -7747,8 +7859,22 @@ private View createBottomNavigation(
             dp(9)
     );
 
-    navigation.setBackgroundColor(
-            Color.rgb(18, 17, 24)
+    GradientDrawable navigationBackground =
+            new GradientDrawable(
+                    GradientDrawable.Orientation.TOP_BOTTOM,
+                    new int[]{
+                            Color.rgb(27, 24, 36),
+                            Color.rgb(15, 14, 21)
+                    }
+            );
+
+    navigationBackground.setStroke(
+            dp(1),
+            Color.rgb(43, 39, 55)
+    );
+
+    navigation.setBackground(
+            navigationBackground
     );
 
     navigation.addView(
@@ -7927,7 +8053,7 @@ private LinearLayout createFeatureCard() {
     );
 
     card.setBackground(
-            softCardBackground(
+            glassCardBackground(
                     dp(20)
             )
     );
