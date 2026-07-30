@@ -215,7 +215,9 @@ public class LockActivity extends Activity {
                 dp(25)
         );
 
-        root.setBackgroundColor(BG);
+        root.setBackground(
+                lockBackground()
+        );
 
         // =====================================================
         // TOP SPACE
@@ -239,8 +241,8 @@ public class LockActivity extends Activity {
 
         TextView icon =
                 text(
-                        "◆",
-                        28,
+                        "◇",
+                        30,
                         PURPLE_LIGHT,
                         medium
                 );
@@ -286,8 +288,8 @@ public class LockActivity extends Activity {
         root.addView(
                 icon,
                 params(
-                        dp(88),
-                        dp(88)
+                        dp(92),
+                        dp(92)
                 )
         );
 
@@ -934,6 +936,16 @@ private void unlockCurrentPackage() {
                 Gravity.CENTER
         );
 
+        key.setContentDescription(
+                value.equals("⌫")
+                        ? "Delete digit"
+                        : "Digit " + value
+        );
+
+        key.setFocusable(
+                true
+        );
+
         GradientDrawable bg =
                 gradient(
                         new int[]{
@@ -954,9 +966,9 @@ private void unlockCurrentPackage() {
         bg.setStroke(
                 dp(1),
                 Color.rgb(
-                        49,
-                        46,
-                        62
+                        59,
+                        52,
+                        76
                 )
         );
 
@@ -1031,6 +1043,29 @@ private void unlockCurrentPackage() {
                     )
             );
         }
+    }
+
+    private android.graphics.drawable.Drawable lockBackground() {
+
+        return new PremiumBackgroundDrawable(
+                BG,
+                new int[]{
+                        Color.argb(72, 126, 79, 218),
+                        Color.argb(42, 201, 177, 255)
+                },
+                new float[]{
+                        0.16f,
+                        0.90f
+                },
+                new float[]{
+                        0.16f,
+                        0.78f
+                },
+                new float[]{
+                        0.30f,
+                        0.24f
+                }
+        );
     }
 
     // =========================================================
